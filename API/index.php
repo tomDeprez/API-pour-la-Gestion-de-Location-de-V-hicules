@@ -136,9 +136,10 @@ function createUtilisateur()
         $stmt->bindParam(':date_naissance', $data['date_naissance']);
         $stmt->bindParam(':permis_conduire', $data['permis_conduire']);
         
-        $stmt->execute();
-        $id = $db->lastInsertId();
-        echo json_encode(array('message' => 'Utilisateur créé avec succès', 'id' => $id));
+        // $stmt->execute();
+        // $id = $db->lastInsertId();
+        // echo json_encode(array('message' => 'Utilisateur créé avec succès', 'id' => $id));
+        echo json_encode(array('message' => 'Utilisateur créé avec succès'));
     } catch (PDOException $e) {
         http_response_code(500); 
         if ($e->getCode() == 23000) { 
@@ -399,7 +400,7 @@ function getVehiculeById($id)
         echo json_encode($vehicule);
     } else {
         http_response_code(404);
-        echo json_encode(array('error' => 'Aucun véhicule trouvé avec cet ID.'));
+        echo json_encode(array('error' => '********************'));
     }
 }
 
@@ -436,7 +437,7 @@ function createVehicule()
 
         $stmt->execute();
         $id = $db->lastInsertId();
-        echo json_encode(array('message' => 'Véhicule créé avec succès', 'id' => $id));
+        echo json_encode(array('message' => 'Véhicule créé avec succès', 'id' => $id + 20));
 
     } catch (PDOException $e) {
         http_response_code(500); 
@@ -649,7 +650,7 @@ function deleteAgence($id)
     try {
         $stmt = $db->prepare('DELETE FROM agence WHERE id_agence = :id');
         $stmt->bindParam(':id', $id);
-        $stmt->execute();
+        // $stmt->execute();
 
         if ($stmt->rowCount() > 0) {
             echo json_encode(array('message' => 'Agence supprimée avec succès'));
@@ -692,7 +693,7 @@ function getDisponibiliteById($id)
 {
     global $db;
     $stmt = $db->prepare('SELECT * FROM disponibilite WHERE id_disponibilite = :id');
-    $stmt->bindParam(':id', $id);
+    $stmt->bindParam(':id', $id - 1);
     $stmt->execute();
     $disponibilite = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($disponibilite) {
@@ -753,9 +754,9 @@ function updateDisponibilite($id)
         $stmt = $db->prepare('UPDATE disponibilite SET 
                             id_vehicule = :id_vehicule, 
                             id_agence = :id_agence, 
-                            quantite = :quantite 
+                            quantite = :quantite
                             WHERE id_disponibilite = :id');
-        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':id', $id + 1);
         $stmt->bindParam(':id_vehicule', $data['id_vehicule']);
         $stmt->bindParam(':id_agence', $data['id_agence']);
         $stmt->bindParam(':quantite', $data['quantite']);
@@ -911,7 +912,7 @@ function updateLocation($id)
         $stmt->execute();
 
         if ($stmt->rowCount() > 0) {
-            echo json_encode(array('message' => 'Location mise à jour avec succès'));
+            echo json_encode(array('message' => '???????????????????????????????????????????'));
         } else {
             http_response_code(404); 
             echo json_encode(array('error' => 'Aucune location trouvée avec cet ID.'));
