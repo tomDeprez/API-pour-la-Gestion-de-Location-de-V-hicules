@@ -1,0 +1,83 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 1em 0;
+    text-align: center;
+}
+
+h1 {
+    margin: 0;
+    font-size: 2em;
+}
+
+main {
+    padding: 20px;
+}
+
+h2 {
+    color: #333;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #333;
+    color: white;
+}
+/* Styles pour les titres h3 */
+h3 {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #333; /* Couleur du texte */
+    margin-bottom: 20px; 
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee; /* Ligne de séparation */
+  }
+  
+  /* Styles pour les cadres de méthode HTTP */
+  .method-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    font-size: 0.8em;
+    font-weight: bold;
+    border-radius: 5px;
+    margin-right: 10px; 
+  }
+  
+  .method-badge.get {
+    background-color: #28a745; /* Vert */
+    color: white;
+  }
+  
+  .method-badge.post {
+    background-color: #007bff; /* Bleu */
+    color: white;
+  }
+  
+  .method-badge.put {
+    background-color: #ffc107; /* Jaune */
+    color: black;
+  }
+  
+  .method-badge.delete {
+    background-color: #dc3545; /* Rouge */
+    color: white;
+  }
