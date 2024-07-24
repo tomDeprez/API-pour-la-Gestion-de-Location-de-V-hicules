@@ -136,10 +136,10 @@ function createUtilisateur()
         $stmt->bindParam(':date_naissance', $data['date_naissance']);
         $stmt->bindParam(':permis_conduire', $data['permis_conduire']);
         
-        // $stmt->execute();
-        // $id = $db->lastInsertId();
-        // echo json_encode(array('message' => 'Utilisateur créé avec succès', 'id' => $id));
-        echo json_encode(array('message' => 'Utilisateur créé avec succès'));
+        $stmt->execute();
+        $id = $db->lastInsertId();
+        echo json_encode(array('message' => 'Utilisateur créé avec succès', 'id' => $id));
+        http_response_code(201);
     } catch (PDOException $e) {
         http_response_code(500); 
         if ($e->getCode() == 23000) { 
@@ -245,8 +245,38 @@ function validateUtilisateurData($data) {
     } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
         $errors['email'] = 'L\'email est invalide';
     }
+    if (empty($data['mot_de_passe'])) {
+        $errors['mot_de_passe'] = 'Le mot de passe est requis';
+    } 
+    if (empty($data['adresse'])) {
+        $errors['adresse'] = 'L\'adresse est requise';
+    }
+    if (empty($data['code_postal'])) {
+        $errors['code_postal'] = 'Le code postal est requis';
+    }
+    if (empty($data['ville'])) {
+        $errors['ville'] = 'La ville est requise';
+    }
+    if (empty($data['pays'])) {
+        $errors['pays'] = 'Le pays est requis';
+    }
+    if (empty($data['telephone'])) {
+        $errors['telephone'] = 'Le téléphone est requis';
+    } elseif (!preg_match('/^[0-9+\s-]{8,}$/', $data['telephone'])) { 
+        $errors['telephone'] = 'Le numéro de téléphone est invalide';
+    }
+    if (empty($data['date_naissance'])) {
+        $errors['date_naissance'] = 'La date de naissance est requise';
+    } elseif (!validateDate($data['date_naissance'])) { 
+        $errors['date_naissance'] = 'La date de naissance est invalide';
+    }
+    if (empty($data['permis_conduire'])) {
+        $errors['permis_conduire'] = 'Le permis de conduire est requis';
+    }
+
     return $errors;
 }
+
 // Fonctions de gestion des catégories
 function getCategories()
 {
@@ -294,6 +324,7 @@ function createCategorie()
         $stmt->execute();
         $id = $db->lastInsertId();
         echo json_encode(array('message' => 'Catégorie créée avec succès', 'id' => $id));
+        http_response_code(201);
     } catch (PDOException $e) {
         http_response_code(500); 
         if ($e->getCode() == 23000) { 
@@ -378,6 +409,12 @@ function validateCategorieData($data) {
     if (empty($data['nom'])) {
         $errors['nom'] = 'Le nom est requis.';
     }
+    if (empty($data['prix_journalier'])) {
+        $errors['prix_journalier'] = 'Le prix journalier est requis.';
+    } elseif (!filter_var($data['prix_journalier'], FILTER_VALIDATE_FLOAT) || $data['prix_journalier'] <= 0) {
+        $errors['prix_journalier'] = 'Le prix journalier doit être un nombre positif.';
+    }
+    
     return $errors;
 }
 // Fonctions de gestion des véhicules
@@ -400,7 +437,7 @@ function getVehiculeById($id)
         echo json_encode($vehicule);
     } else {
         http_response_code(404);
-        echo json_encode(array('error' => '********************'));
+        echo json_encode(array('error' => 'Aucun véhicule trouvé avec cet ID.'));
     }
 }
 
@@ -437,8 +474,8 @@ function createVehicule()
 
         $stmt->execute();
         $id = $db->lastInsertId();
-        echo json_encode(array('message' => 'Véhicule créé avec succès', 'id' => $id + 20));
-
+        echo json_encode(array('message' => 'Véhicule créé avec succès', 'id' => $id));
+        http_response_code(201);
     } catch (PDOException $e) {
         http_response_code(500); 
         if ($e->getCode() == 23000) {
@@ -539,16 +576,54 @@ function deleteVehicule($id)
 function validateVehiculeData($data) {
     $errors = [];
 
-    // Exemples de validations
+    if (empty($data['id_categorie'])) {
+        $errors['id_categorie'] = 'L\'ID de la catégorie est requis.';
+    } elseif (!filter_var($data['id_categorie'], FILTER_VALIDATE_INT) || $data['id_categorie'] <= 0) { 
+        $errors['id_categorie'] = 'L\'ID de la catégorie est invalide.';
+    }
     if (empty($data['marque'])) {
         $errors['marque'] = 'La marque est requise.';
     }
     if (empty($data['modele'])) {
         $errors['modele'] = 'Le modèle est requis.';
     }
+    if (empty($data['annee'])) {
+        $errors['annee'] = 'L\'année est requise.';
+    } elseif (!filter_var($data['annee'], FILTER_VALIDATE_INT) || $data['annee'] > date('Y')) { 
+        $errors['annee'] = 'L\'année est invalide.';
+    }
+    if (empty($data['immatriculation'])) {
+        $errors['immatriculation'] = 'L\'immatriculation est requise.';
+    }
+    if (empty($data['kilometrage'])) {
+        $errors['kilometrage'] = 'Le kilométrage est requis.';
+    } elseif (!filter_var($data['kilometrage'], FILTER_VALIDATE_INT) || $data['kilometrage'] < 0) {
+        $errors['kilometrage'] = 'Le kilométrage est invalide.';
+    }
+    if (empty($data['nombre_places'])) {
+        $errors['nombre_places'] = 'Le nombre de places est requis.';
+    } elseif (!filter_var($data['nombre_places'], FILTER_VALIDATE_INT) || $data['nombre_places'] <= 0) { 
+        $errors['nombre_places'] = 'Le nombre de places est invalide.'; 
+    }
+    if (!isset($data['climatisation'])) { 
+        $errors['climatisation'] = 'La climatisation est requise.'; 
+    }
+    if (!isset($data['gps'])) { 
+        $errors['gps'] = 'Le GPS est requis.'; 
+    }
+    if (empty($data['transmission'])) {
+        $errors['transmission'] = 'La transmission est requise.';
+    }
+    if (empty($data['carburant'])) {
+        $errors['carburant'] = 'Le carburant est requis.';
+    }
+    if (!isset($data['disponible'])) {
+        $errors['disponible'] = 'La disponibilité est requise.';
+    }
 
     return $errors;
 }
+
 // Fonctions de gestion des agences
 function getAgences()
 {
@@ -597,6 +672,7 @@ function createAgence()
         $stmt->execute();
         $id = $db->lastInsertId();
         echo json_encode(array('message' => 'Agence créée avec succès', 'id' => $id));
+        http_response_code(201);
     } catch (PDOException $e) {
         http_response_code(500); 
         echo json_encode(array('error' => 'Erreur lors de la création de l\'agence. Veuillez réessayer plus tard.'));
@@ -650,7 +726,7 @@ function deleteAgence($id)
     try {
         $stmt = $db->prepare('DELETE FROM agence WHERE id_agence = :id');
         $stmt->bindParam(':id', $id);
-        // $stmt->execute();
+        $stmt->execute();
 
         if ($stmt->rowCount() > 0) {
             echo json_encode(array('message' => 'Agence supprimée avec succès'));
@@ -675,6 +751,18 @@ function validateAgenceData($data) {
 
     if (empty($data['nom'])) {
         $errors['nom'] = 'Le nom est requis.';
+    }
+    if (empty($data['adresse'])) {
+        $errors['adresse'] = 'L\'adresse est requise.';
+    }
+    if (empty($data['code_postal'])) {
+        $errors['code_postal'] = 'Le code postal est requis.';
+    }
+    if (empty($data['ville'])) {
+        $errors['ville'] = 'La ville est requise.';
+    }
+    if (empty($data['pays'])) {
+        $errors['pays'] = 'Le pays est requis.';
     }
 
     return $errors;
@@ -726,6 +814,7 @@ function createDisponibilite()
         $stmt->execute();
         $id = $db->lastInsertId();
         echo json_encode(array('message' => 'Disponibilité créée avec succès', 'id' => $id));
+        http_response_code(201);
     } catch (PDOException $e) {
         http_response_code(500);
         if ($e->getCode() == 23000) { 
@@ -802,10 +891,10 @@ function deleteDisponibilite($id)
 function validateDisponibiliteData($data) {
     $errors = [];
 
-    if (!isset($data['id_vehicule']) || !filter_var($data['id_vehicule'], FILTER_VALIDATE_INT)) {
+    if (!isset($data['id_vehicule']) || !filter_var($data['id_vehicule'], FILTER_VALIDATE_INT) || $data['id_vehicule'] <= 0) {
         $errors['id_vehicule'] = 'L\'ID du véhicule est invalide.'; 
     }
-    if (!isset($data['id_agence']) || !filter_var($data['id_agence'], FILTER_VALIDATE_INT)) {
+    if (!isset($data['id_agence']) || !filter_var($data['id_agence'], FILTER_VALIDATE_INT) || $data['id_agence'] <= 0) {
         $errors['id_agence'] = 'L\'ID de l\'agence est invalide.';
     }
     if (!isset($data['quantite']) || !filter_var($data['quantite'], FILTER_VALIDATE_INT) || $data['quantite'] <= 0) {
@@ -865,6 +954,7 @@ function createLocation()
         $stmt->execute();
         $id = $db->lastInsertId();
         echo json_encode(array('message' => 'Location créée avec succès', 'id' => $id));
+        http_response_code(201);
     } catch (PDOException $e) {
         http_response_code(500); 
         if ($e->getCode() == 23000) {
@@ -951,14 +1041,40 @@ function deleteLocation($id)
 function validateLocationData($data) {
     $errors = [];
 
-    // Exemples de validations 
-    if (!isset($data['id_utilisateur']) || !filter_var($data['id_utilisateur'], FILTER_VALIDATE_INT)) {
+    if (!isset($data['id_utilisateur']) || !filter_var($data['id_utilisateur'], FILTER_VALIDATE_INT) || $data['id_utilisateur'] <= 0) {
         $errors['id_utilisateur'] = 'L\'ID utilisateur est invalide.';
     }
-    // ... autres validations (véhicule, agences, dates, prix, statut, etc.) ...
+    if (!isset($data['id_vehicule']) || !filter_var($data['id_vehicule'], FILTER_VALIDATE_INT) || $data['id_vehicule'] <= 0) {
+        $errors['id_vehicule'] = 'L\'ID du véhicule est invalide.'; 
+    }
+    if (!isset($data['id_agence_depart']) || !filter_var($data['id_agence_depart'], FILTER_VALIDATE_INT) || $data['id_agence_depart'] <= 0) {
+        $errors['id_agence_depart'] = 'L\'ID de l\'agence de départ est invalide.';
+    }
+    if (!isset($data['id_agence_retour']) || !filter_var($data['id_agence_retour'], FILTER_VALIDATE_INT) || $data['id_agence_retour'] <= 0) {
+        $errors['id_agence_retour'] = 'L\'ID de l\'agence de retour est invalide.';
+    }
+    if (empty($data['date_debut'])) {
+        $errors['date_debut'] = 'La date de début est requise.';
+    } elseif (!validateDate($data['date_debut'])) {
+        $errors['date_debut'] = 'La date de début est invalide.';
+    }
+    if (empty($data['date_fin'])) {
+        $errors['date_fin'] = 'La date de fin est requise.';
+    } elseif (!validateDate($data['date_fin'])) {
+        $errors['date_fin'] = 'La date de fin est invalide.';
+    }
+    if (empty($data['prix_total'])) {
+        $errors['prix_total'] = 'Le prix total est requis.';
+    } elseif (!filter_var($data['prix_total'], FILTER_VALIDATE_FLOAT) || $data['prix_total'] <= 0) {
+        $errors['prix_total'] = 'Le prix total doit être un nombre positif.';
+    }
+    if (empty($data['statut'])) {
+        $errors['statut'] = 'Le statut est requis.';
+    }
 
     return $errors;
 }
+
 
 // Fonctions de gestion des avis
 function getAvis()
@@ -1006,6 +1122,7 @@ function createAvis()
         $stmt->execute();
         $id = $db->lastInsertId();
         echo json_encode(array('message' => 'Avis créé avec succès', 'id' => $id));
+        http_response_code(201);
     } catch (PDOException $e) {
         http_response_code(500); 
         if ($e->getCode() == 23000) { 
@@ -1040,11 +1157,18 @@ function deleteAvis($id)
 function validateAvisData($data) {
     $errors = [];
 
-    // Exemples de validations
-    if (!isset($data['id_location']) || !filter_var($data['id_location'], FILTER_VALIDATE_INT)) {
+    if (!isset($data['id_location']) || !filter_var($data['id_location'], FILTER_VALIDATE_INT) || $data['id_location'] <= 0) {
         $errors['id_location'] = 'L\'ID de la location est invalide.'; 
     }
-    // ... autres validations (note, commentaire, etc.) ...
+    if (!isset($data['note']) || !filter_var($data['note'], FILTER_VALIDATE_INT) || $data['note'] < 1 || $data['note'] > 5) {
+        $errors['note'] = 'La note doit être un entier entre 1 et 5.';
+    }
 
     return $errors;
+}
+
+function validateDate($date, $format = 'Y-m-d')
+{
+    $d = DateTime::createFromFormat($format, $date);
+    return $d && $d->format($format) === $date;
 }
