@@ -36,6 +36,7 @@ $routes = [
         $baseUrl . '/agences' => 'getAgences',
         $baseUrl . '/agences/([0-9]+)' => 'getAgenceById',
         $baseUrl . '/disponibilites' => 'getDisponibilites',
+        $baseUrl . '/disponibilites/([0-9]+)' => 'getDisponibiliteById',
         $baseUrl . '/locations' => 'getLocations',
         $baseUrl . '/locations/([0-9]+)' => 'getLocationById',
         $baseUrl . '/avis' => 'getAvis',
